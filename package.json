@@ -1,7 +1,7 @@
 {
   "name": "@syngenta-digital/planting-common-ops",
   "version": "DYNAMIC_VERSION",
-  "description": "",
+  "description": "A common package or all kinds of common modules which will be used across repos",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "",
