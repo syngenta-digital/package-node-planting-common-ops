@@ -1,0 +1,1 @@
+export * from './src/modules/secret-manager-client'
