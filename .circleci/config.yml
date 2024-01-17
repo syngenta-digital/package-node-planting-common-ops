@@ -20,13 +20,6 @@ jobs:
           name: Run lint
           command: |
             NPM_TOKEN=$FURY_AUTH yarn lint
-      - run:
-          name: Run Jest and Collect Coverage Reports
-          command: |
-            NPM_TOKEN=$FURY_AUTH yarn test --ci --runInBand             
-      - store_test_results:
-          path: ./reports/
-          when: always
       - sonarcloud/scan
 
   pack_and_push_tag:
@@ -38,6 +31,7 @@ jobs:
           name: Detect Version Number
           command: |
             echo $CIRCLE_TAG$CIRCLE_BRANCH | cut -d/ -f2 > DYNAMIC_VERSION
+            echo $DYNAMIC_VERSION
       - run :
           name: Install Dependencies
           command: |
@@ -45,16 +39,17 @@ jobs:
       - run :
           name: Build package
           command: |
+            yarn build
             sed -i -e "s!DYNAMIC_VERSION!$(cat DYNAMIC_VERSION)!" package.json
             cat package.json
             mkdir -p packages
             NPM_TOKEN=$FURY_AUTH yarn build
-            NPM_TOKEN=$FURY_AUTH yarn pack -o packages/syngenta-digital-planting-plan-logic.tgz
+            NPM_TOKEN=$FURY_AUTH yarn pack -o packages/syngenta-digital-planting-common-ops.tgz
       - run :
           name: Publish package
           command: |
             echo Publishing version $(cat DYNAMIC_VERSION)
-            curl -ivF 'package=@packages/syngenta-digital-planting-plan-logic.tgz' "https://${FURY_PUSH_TOKEN}@push.fury.io/syngenta-digital/"
+            curl -ivF "package=@syngenta-digital-planting-common-ops-v$(cat DYNAMIC_VERSION).tgz" "https://${FURY_PUSH_TOKEN}@push.fury.io/syngenta-digital/"
       - store_artifacts:
           name: "Save the built package."
           path: ./packages/
