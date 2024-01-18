@@ -3,3 +3,5 @@
 
 CLICOLOR=1
 yarn lint-staged
+echo "Removing dist folder if present"
+rm -rf dist
