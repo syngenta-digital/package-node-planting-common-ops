@@ -11,11 +11,13 @@
   "scripts": {
     "build": "yarn tsc --declaration --declarationMap --sourceMap",
     "lint": "eslint src/**/*.ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "format":"eslint src/**/*.ts --fix"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.485.0",
     "async": "^3.2.5",
+    "commander": "^12.0.0",
     "lint-staged": "^15.2.0",
     "typescript": "^5.3.3"
   },
@@ -26,5 +28,8 @@
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
     "husky": "^8.0.0"
+  },
+  "bin": {
+    "pco": "./dist/cli/cli.js"
   }
 }
