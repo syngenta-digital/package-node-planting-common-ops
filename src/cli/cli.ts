@@ -19,17 +19,14 @@ import { each, asyncify } from 'async';
 /**
  * Main script starts here
  */
-(async () => 
-{
+(async () => {
 	// 'staging' and 'production' are provider for backward 
 	// compatibility for AZURE DEPLOYMENTS. Must be removed
 	// in future
 	const envs = ['dev', 'qa', 'staging', 'uat', 'prod', 'production'];
-	await each(envs, asyncify(async (env: string) => 
-	{
+	await each(envs, asyncify(async (env: string) => {
 		const srcPath = resolve(`node_modules/@syngenta-digital/planting-common-ops/src/modules/env/.env.${env}`);
-		if (!(await doesFileExists(srcPath))) 
-		{
+		if (!(await doesFileExists(srcPath))) {
 			return false;
 		}
 		await cp(srcPath, resolve(`.env.${env}`));
@@ -41,15 +38,12 @@ import { each, asyncify } from 'async';
  * CHECKS WHETHER A FILE EXISTS AT A 
  * PARTICULAR LOCATION OR NOT
  */
-async function doesFileExists(path: string) 
-{
-	try 
-	{
+async function doesFileExists(path: string) {
+	try {
 		await stat(path);
 		return true;
 	}
-	catch (error) 
-	{
+	catch (error) {
 		console.warn(`== FILE "${path}" DOES NOT EXIST ==`);
 		return false;
 	}
