@@ -1,20 +1,35 @@
 {
   "name": "@syngenta-digital/planting-common-ops",
   "version": "DYNAMIC_VERSION",
-  "description": "",
+  "description": "A common package or all kinds of common modules which will be used across repos",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "",
   "keywords": [],
   "author": "Vansham Aggarwal <vansham.aggarwal@syngenta.com>",
   "license": "",
-  "scripts": {},
+  "scripts": {
+    "build": "yarn tsc --declaration --declarationMap --sourceMap",
+    "lint": "eslint src/**/*.ts",
+    "prepare": "husky install",
+    "format":"eslint src/**/*.ts --fix"
+  },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.485.0",
-    "async": "^3.2.5"
+    "async": "^3.2.5",
+    "commander": "^12.0.0",
+    "lint-staged": "^15.2.0",
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/async": "^3.2.24",
-    "@types/node": "^20.10.7"
+    "@types/node": "^20.10.7",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "husky": "^8.0.0"
+  },
+  "bin": {
+    "pco": "./dist/cli/cli.js"
   }
 }
