@@ -1,5 +1,6 @@
 {
 	"*.{ts}": [
+    "yarn format",
 		"yarn lint"
 	]
 }
