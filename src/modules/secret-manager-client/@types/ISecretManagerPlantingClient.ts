@@ -42,7 +42,7 @@ export interface ISecretManagerPlantingClient {
    * name should be `authentication`. The function will return
    * `planting/dev/authenticatio`
    */
-  generateSecretName(name: string): string;
+  generateSecretName?(name: string): string;
   
 }
 
