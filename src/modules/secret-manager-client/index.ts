@@ -42,7 +42,7 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 					SecretList
 						?.map((s: any) => s!.Name)
 						?.forEach((s: string) => {
-							const fetchActualSecretsCmd = `aws secretsmanager get-secret-value --secret-id ${s} --region eu-central-1 ${this._getEffectiveENV() ? ` --profile ${this._getEffectiveENV()?.toLowerCase}` : ''}`;
+							const fetchActualSecretsCmd = `aws secretsmanager get-secret-value --secret-id ${s} --region eu-central-1 ${this._getEffectiveENV() ? ` --profile ${this._getEffectiveENV()?.toLowerCase()}` : ''}`;
 							const res = JSON.parse(execSync(fetchActualSecretsCmd, { encoding: 'utf8' }));
 							actualSecrets.push(res);
 						});
