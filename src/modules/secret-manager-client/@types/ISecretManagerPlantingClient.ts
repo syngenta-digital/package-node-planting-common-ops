@@ -34,15 +34,6 @@ export interface ISecretManagerPlantingClient {
    * @description Loads the secrets from the local store to the process's environment
    */
   loadAllSecrstsInEnvironment(): Promise<void>;
-
-  /**
-   * @description Generates the secretname name for
-   * the required secrets within the planting ecosystem
-   * @param name if the secretname is `planting/dev/authentication` then
-   * name should be `authentication`. The function will return
-   * `planting/dev/authenticatio`
-   */
-  generateSecretName?(name: string): string;
   
 }
 

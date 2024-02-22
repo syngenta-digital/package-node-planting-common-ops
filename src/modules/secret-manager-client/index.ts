@@ -146,11 +146,10 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 		}
 	}
 
-	public static generateSecretName(name: string) {
+	static generateSecretName(name: string) {
 		const env = process.env.NODE_ENV ?? process.env.ENV;
 		const effectiveEnv = env === 'production' ? 'prod' : env === 'staging' ? 'uat' : env;
 		return `planting/${effectiveEnv}/${name}`;
 	}
-
+  
 }
-
