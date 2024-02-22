@@ -2,7 +2,7 @@ import { BatchGetSecretValueCommand, GetSecretValueCommand, GetSecretValueComman
 import { IGetAllSecretsInput, ISecretManagerPlantingClient } from './@types/ISecretManagerPlantingClient';
 import { ISecretManagerPlantingClientConstructorParameters } from './@types/ISecretManagerPlantingClientConstructorParameters';
 import { asyncify, doWhilst } from 'async';
-import { spawnSync } from 'child_process';
+import { execSync } from 'child_process';
 
 
 /**
@@ -36,16 +36,14 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 		let nextToken: string = undefined!;
 		await doWhilst(
 			asyncify(async () => {
-				const { NextToken, SecretList } = JSON.parse(spawnSync('aws', cmd.split(' ').slice(1), { encoding: 'utf8', shell: false }).stdout);
+				const { NextToken, SecretList } = JSON.parse(execSync(cmd, { encoding: 'utf8' }));
 				nextToken = NextToken!;
 				if (SecretList?.length) {
 					SecretList
 						?.map((s: any) => s!.Name)
 						?.forEach((s: string) => {
 							const fetchActualSecretsCmd = `aws secretsmanager get-secret-value --secret-id ${s} --region eu-central-1 ${this._getEffectiveENV() ? ` --profile ${this._getEffectiveENV()?.toLowerCase}` : ''}`;
-							const res1 = spawnSync('aws', fetchActualSecretsCmd.split(' ').splice(1), { encoding: 'utf8', shell: false }).stdout;
-							console.info('>>>>', res1);
-							const res = JSON.parse(spawnSync('aws', fetchActualSecretsCmd.split(' ').splice(1), { encoding: 'utf8', shell: false }).stdout);
+							const res = JSON.parse(execSync(fetchActualSecretsCmd, { encoding: 'utf8' }));
 							actualSecrets.push(res);
 						});
 
@@ -129,7 +127,7 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 		if (this._getEffectiveENV()) {
 			cmd += ` --profile ${this._getEffectiveENV()?.toLowerCase()}`;
 		}
-		return JSON.parse(spawnSync('aws', cmd.split(' ').splice(1), { encoding: 'utf8' }).stdout);
+		return JSON.parse(execSync(cmd, { encoding: 'utf8' }));
 	}
 
 	public getSecretLocal(secretName: string, parseJson: boolean) {
@@ -155,3 +153,9 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 	}
 
 }
+
+// (async () => {
+//   const client = new SecretManagerPlantingClient({ strategy: 'cli', retryTimes: 3});
+//   const res = await client.getAllSecrets({parseJson: true});
+//   console.log(res)
+// })()
