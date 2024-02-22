@@ -2,7 +2,7 @@ import { BatchGetSecretValueCommand, GetSecretValueCommand, GetSecretValueComman
 import { IGetAllSecretsInput, ISecretManagerPlantingClient } from './@types/ISecretManagerPlantingClient';
 import { ISecretManagerPlantingClientConstructorParameters } from './@types/ISecretManagerPlantingClientConstructorParameters';
 import { asyncify, doWhilst } from 'async';
-import {  spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 
 
 /**
@@ -36,14 +36,14 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 		let nextToken: string = undefined!;
 		await doWhilst(
 			asyncify(async () => {
-				const { NextToken, SecretList } = JSON.parse(spawnSync(cmd, { encoding: 'utf8' }) as unknown as string);
+				const { NextToken, SecretList } = JSON.parse(spawnSync('aws', cmd.split(' ').slice(1), { encoding: 'utf8', shell: false }).stdout);
 				nextToken = NextToken!;
 				if (SecretList?.length) {
 					SecretList
 						?.map((s: any) => s!.Name)
 						?.forEach((s: string) => {
 							const fetchActualSecretsCmd = `aws secretsmanager get-secret-value --secret-id ${s} --region eu-central-1 ${this._getEffectiveENV() ? ` --profile ${this._getEffectiveENV()?.toLowerCase}` : ''}`;
-							const res = JSON.parse(spawnSync(fetchActualSecretsCmd, { encoding: 'utf8', shell: false }) as unknown as string);
+							const res = JSON.parse(spawnSync('aws', fetchActualSecretsCmd.split(' ').splice(1), { encoding: 'utf8', shell: false }).stdout);
 							actualSecrets.push(res);
 						});
 
@@ -127,7 +127,7 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 		if (this._getEffectiveENV()) {
 			cmd += ` --profile ${this._getEffectiveENV()?.toLowerCase()}`;
 		}
-		const res = JSON.parse(spawnSync(cmd, { encoding: 'utf8' }) as unknown as string);
+		return JSON.parse(spawnSync('aws', cmd.split(' ').splice(1), { encoding: 'utf8' }).stdout);
 	}
 
 	public getSecretLocal(secretName: string, parseJson: boolean) {
@@ -151,5 +151,5 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 		const effectiveEnv = env === 'production' ? 'prod' : env === 'staging' ? 'uat' : env;
 		return `planting/${effectiveEnv}/${name}`;
 	}
-  
+
 }
