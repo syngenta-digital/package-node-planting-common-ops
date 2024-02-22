@@ -2,6 +2,7 @@ import { BatchGetSecretValueCommand, GetSecretValueCommand, GetSecretValueComman
 import { IGetAllSecretsInput, ISecretManagerPlantingClient } from './@types/ISecretManagerPlantingClient';
 import { ISecretManagerPlantingClientConstructorParameters } from './@types/ISecretManagerPlantingClientConstructorParameters';
 import { asyncify, doWhilst } from 'async';
+import {  spawnSync } from 'child_process';
 
 
 /**
@@ -20,13 +21,51 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 	}
 
 
-	public async getSingleSecret(params: GetSecretValueCommandInput): Promise<GetSecretValueCommandOutput> {
-		const cmd = new GetSecretValueCommand(params);
-		const results = await this._secretManagerClient.send(cmd);
-		return results;
+	private _getEffectiveENV() {
+		const env = process.env.NODE_ENV ?? process.env.ENV;
+		return env === 'production' ? 'prod' : env === 'staging' ? 'uat' : env;
 	}
 
-	public async getAllSecrets({ parseJson }: IGetAllSecretsInput): Promise<Record<string, any>> {
+	private async _getAllSecretsCLI({ parseJson }: IGetAllSecretsInput) {
+		let cmd = 'aws secretsmanager list-secrets --region eu-central-1';
+		if (this._getEffectiveENV()) {
+			cmd += ` --profile ${this._getEffectiveENV()?.toLowerCase()}`;
+		}
+
+		const actualSecrets: SecretValueEntry[] = [];
+		let nextToken: string = undefined!;
+		await doWhilst(
+			asyncify(async () => {
+				const { NextToken, SecretList } = JSON.parse(spawnSync(cmd, { encoding: 'utf8' }) as unknown as string);
+				nextToken = NextToken!;
+				if (SecretList?.length) {
+					SecretList
+						?.map((s: any) => s!.Name)
+						?.forEach((s: string) => {
+							const fetchActualSecretsCmd = `aws secretsmanager get-secret-value --secret-id ${s} --region eu-central-1 ${this._getEffectiveENV() ? ` --profile ${this._getEffectiveENV()?.toLowerCase}` : ''}`;
+							const res = JSON.parse(spawnSync(fetchActualSecretsCmd, { encoding: 'utf8', shell: false }) as unknown as string);
+							actualSecrets.push(res);
+						});
+
+				}
+			}),
+			async () => nextToken
+		);
+
+		this._secretStore = actualSecrets?.reduce((acc, next) => {
+			try {
+				return { ...acc, [next!.Name!]: parseJson ? JSON.parse(next.SecretString!) : next.SecretString! };
+			}
+			catch (error) {
+				console.error(`Error while parsing the secret value of the key "${next!.Name}". Please check if the values are stored in proper JSON format `);
+				return acc;
+			}
+		}, {});
+
+		return this._secretStore;
+	}
+
+	private async _getAllSecretsSDK({ parseJson }: IGetAllSecretsInput): Promise<Record<string, any>> {
 		const actualSecrets: SecretValueEntry[] = [];
 		let nextToken: string = undefined!;
 		await doWhilst(
@@ -55,6 +94,40 @@ export class SecretManagerPlantingClient implements ISecretManagerPlantingClient
 
 		return this._secretStore;
 
+	}
+
+	public async getAllSecrets({ parseJson }: IGetAllSecretsInput): Promise<Record<string, any>> {
+		const strategy = this._params.strategy;
+
+		if (strategy === 'cli') {
+			return this._getAllSecretsCLI({ parseJson });
+		}
+		else
+			return await this._getAllSecretsSDK({ parseJson });
+	}
+
+
+	public async getSingleSecret(params: GetSecretValueCommandInput): Promise<GetSecretValueCommandOutput | any> {
+
+		if (this._params.strategy === 'cli') {
+			return this._getSingleSecretCLI(params);
+		}
+		else
+			return this._getSingleSecretSDK(params);
+	}
+
+	private async _getSingleSecretSDK(params: GetSecretValueCommandInput): Promise<GetSecretValueCommandOutput> {
+		const cmd = new GetSecretValueCommand(params);
+		const results = await this._secretManagerClient.send(cmd);
+		return results;
+	}
+
+	private async _getSingleSecretCLI(params: GetSecretValueCommandInput): Promise<any> {
+		let cmd = `aws secretsmanager get-secret-value --secret-id ${params.SecretId} --region eu-central-1 `;
+		if (this._getEffectiveENV()) {
+			cmd += ` --profile ${this._getEffectiveENV()?.toLowerCase()}`;
+		}
+		const res = JSON.parse(spawnSync(cmd, { encoding: 'utf8' }) as unknown as string);
 	}
 
 	public getSecretLocal(secretName: string, parseJson: boolean) {
