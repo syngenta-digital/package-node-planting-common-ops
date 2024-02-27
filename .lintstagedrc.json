@@ -1,6 +1,6 @@
 {
 	"*.{ts}": [
-    "yarn format",
+    "npx prettier --write",
 		"yarn lint"
 	]
 }
