@@ -11,7 +11,8 @@
     "resolveJsonModule": true
   },
   "include": [
-		"src/**/*.ts"
+		"src/**/*.ts",
+    "src/**/.env.dev"
 	],
 	"exclude": [
 		".yarn",

@@ -1,23 +1,27 @@
-import { GetSecretValueCommandInput, GetSecretValueCommandOutput } from '@aws-sdk/client-secrets-manager';
+import {
+  GetSecretValueCommandInput,
+  GetSecretValueCommandOutput,
+} from '@aws-sdk/client-secrets-manager';
 
 export interface ISecretManagerPlantingClient {
-
   /**
-   * 
+   *
    * @param params GetSecretValueCommandInput
    * @description Gets a single secret from the AWS Secrets Manager
    */
-  getSingleSecret(params: GetSecretValueCommandInput): Promise<GetSecretValueCommandOutput>;
+  getSingleSecret(
+    params: GetSecretValueCommandInput,
+  ): Promise<GetSecretValueCommandOutput>;
 
   /**
-   * 
+   *
    * @param params IGetAllSecretsInput
    * @description Gets all the secrets from the secret store from AWS Secrets Manager
    */
   getAllSecrets(params?: IGetAllSecretsInput): Promise<Record<string, any>>;
 
   /**
-   * 
+   *
    * @param secretName Name of the Secret
    * @param parseJson If you want to parse the value from String to JSON
    * @description Once Secrets are fetched they are stored in a local object to avoid refetching to the cloud
@@ -34,7 +38,6 @@ export interface ISecretManagerPlantingClient {
    * @description Loads the secrets from the local store to the process's environment
    */
   loadAllSecrstsInEnvironment(): Promise<void>;
-  
 }
 
 export interface IGetAllSecretsInput {

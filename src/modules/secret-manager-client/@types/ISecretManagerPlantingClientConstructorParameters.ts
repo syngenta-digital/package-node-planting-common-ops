@@ -1,6 +1,7 @@
 import { SecretsManagerClientConfig } from '@aws-sdk/client-secrets-manager';
 
-export interface ISecretManagerPlantingClientConstructorParameters extends SecretsManagerClientConfig {
+export interface ISecretManagerPlantingClientConstructorParameters
+  extends SecretsManagerClientConfig {
   retryTimes: number;
-  strategy: 'cli' | 'sdk'
+  strategy: 'cli' | 'sdk';
 }
