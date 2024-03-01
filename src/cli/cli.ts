@@ -28,7 +28,7 @@ import { each, asyncify } from 'async';
     envs,
     asyncify(async (env: string) => {
       const srcPath = resolve(
-        `node_modules/@syngenta-digital/planting-common-ops/src/modules/env/.env.${env}`,
+        `node_modules/@syngenta-digital/planting-common-ops/dist/modules/env/.env.${env}`,
       );
       if (!(await doesFileExists(srcPath))) {
         return false;
