@@ -41,7 +41,7 @@ export function main() {
   })();
 }
 
-//main();
+main();
 
 /**
  * CHECKS WHETHER A FILE EXISTS AT A
