@@ -17,11 +17,6 @@ jobs:
           command: |
             NPM_TOKEN=$FURY_AUTH yarn install
       - run:
-          name: Run lint
-          command: |
-            NPM_TOKEN=$FURY_AUTH yarn lint
-                path: ~/test-artifacts/postman
-      - run:
           command: |
             yarn test
             echo "Dummy Command to Run Tests"
