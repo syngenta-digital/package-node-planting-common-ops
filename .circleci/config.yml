@@ -20,6 +20,24 @@ jobs:
           name: Run lint
           command: |
             NPM_TOKEN=$FURY_AUTH yarn lint
+                path: ~/test-artifacts/postman
+      - run:
+          command: |
+            yarn test
+            echo "Dummy Command to Run Tests"
+          name: Execute Jest Tests
+      - run:
+          # ./target_docker is where docker copies out the ./target folder.
+          # see docker-compose in testing project for details
+          command: |
+            # mkdir -p ~/test-artifacts/coverage
+            # cp -rv coverage/* ~/test-artifacts/coverage/
+            echo "Dummy Command to Save Jest Results"
+          name: Save Jest test results.
+          when: always
+      - store_artifacts:
+          name: Save general test artifacts.
+          path: ~/test-artifacts
       - sonarcloud/scan
 
   pack_and_push_tag:
