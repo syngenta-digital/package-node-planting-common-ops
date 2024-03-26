@@ -24,7 +24,7 @@ export function main() {
     // 'staging' and 'production' are provider for backward
     // compatibility for AZURE DEPLOYMENTS. Must be removed
     // in future
-    const envs = ['dev', 'qa', 'staging', 'uat', 'prod', 'production'];
+    const envs = ['dev', 'uat', 'prod'];
     await each(
       envs,
       asyncify(async (env: string) => {
