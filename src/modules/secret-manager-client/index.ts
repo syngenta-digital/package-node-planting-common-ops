@@ -38,12 +38,12 @@ export class SecretManagerPlantingClient
     });
   }
 
-  private _getEffectiveENV() {
+  public _getEffectiveENV() {
     const env = process.env.NODE_ENV ?? process.env.ENV;
     return env === 'production' ? 'prod' : env === 'staging' ? 'uat' : env;
   }
 
-  private async _getAllSecretsCLI({ parseJson }: IGetAllSecretsInput) {
+  public async _getAllSecretsCLI({ parseJson }: IGetAllSecretsInput) {
     let cmd = 'aws secretsmanager list-secrets --region eu-central-1';
     if (this._getEffectiveENV()) {
       cmd += ` --profile ${this._getEffectiveENV()?.toLowerCase()}`;
@@ -89,7 +89,7 @@ export class SecretManagerPlantingClient
     return this._secretStore;
   }
 
-  private async _getAllSecretsSDK({
+  public async _getAllSecretsSDK({
     parseJson,
   }: IGetAllSecretsInput): Promise<Record<string, any>> {
     const actualSecrets: SecretValueEntry[] = [];
@@ -188,7 +188,7 @@ export class SecretManagerPlantingClient
     }
   }
 
-  static generateSecretName(name: string) {
+  public generateSecretName(name: string) {
     const env = process.env.NODE_ENV ?? process.env.ENV;
     if (!env) {
       throw new Error(`"NODE_ENV" |  "ENV" or both are not defined!`);
