@@ -20,7 +20,7 @@ import { each, asyncify } from 'async';
  * Main script starts here
  */
 (async () => {
-  const envs = ['dev', 'uat', 'prod'];
+  const envs = ['dev', 'qa', 'staging', 'uat', 'prod', 'production'];
   await each(
     envs,
     asyncify(async (env: string) => {
